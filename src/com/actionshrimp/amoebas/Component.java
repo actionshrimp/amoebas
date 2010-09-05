@@ -8,8 +8,10 @@ public class Component {
 		mOwner = owner;
 	}
 	
-	public void update() {
-		
+	public void register() {
+	}
+	
+	public void update() {	
 	}
 	
 }

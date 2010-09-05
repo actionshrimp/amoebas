@@ -1,15 +1,14 @@
 package com.actionshrimp.amoebas;
 
+import java.util.LinkedList;
 
 public class Amoeba extends GameObject{
 	
-	double mWobbleCnt;			//Wobble tracker
-	private int mVertCnt = 16;	//Blob vertex count
-	
+	//Blob class parameters
 	private static float minR = 30.0f;
 	private static float maxR = 60.0f;
-	private static float minSubR = 6.0f;
-	private static float maxSubR = 3.0f;
+	private static float minSubR = 8.0f;
+	private static float maxSubR = 6.0f;
 	
 	private static int minWobbleF = 1;
 	private static int maxWobbleF = 3;
@@ -17,6 +16,7 @@ public class Amoeba extends GameObject{
 	private static float minWobbleV = 0.2f;
 	private static float maxWobbleV = 3.0f;
 	
+	//Blob instance parameters
 	private float mR; 		//Blob base radius
 	private float mSubR; 	//Blob wobble radius
 	
@@ -26,7 +26,11 @@ public class Amoeba extends GameObject{
 	private float xWobbleV;	//Horizontal wobble offset speed
 	private float yWobbleV;	//Vertical wobble offset speed
 	
-	private LineDrawableComponent mDrawer;
+	double mWobbleCnt;	//Wobble tracker
+	
+	private int mVertCnt = 8;											//Blob vertex count
+	private LineDrawableComponent mDrawer;								//Drawing component
+	private volatile LinkedList<Vector2> mVertices = new LinkedList<Vector2>();	//List of vertices for internal reference
 	
 	public Amoeba(Vector2 position) {
 		super();			
@@ -49,18 +53,22 @@ public class Amoeba extends GameObject{
 		xWobbleV *= (Math.round(Math.random()) == 1) ? 1 : -1;
 		yWobbleV *= (Math.round(Math.random()) == 1) ? 1 : -1;
 		
-		mDrawer = new LineDrawableComponent(this, buildMembrane());
-		mDrawer.update(position);
-		mDrawer.setLineThickness(2.0f);
-		registerComponent(mDrawer);
+		//Initialize the vertices
+		for (int i = 0; i < mVertCnt; i++) {
+			mVertices.add(new Vector2(0.0f,0.0f));
+		}
 		
-//		mDrawer.updateVertices(buildMembrane());
-//		mDrawer.updateVertices(buildMembrane());
+		//Build an initial membrane for drawing component initialization
+		buildMembrane(0);
+		
+		//Register the drawing component
+		mDrawer = new LineDrawableComponent(this, position, mVertices, 2.0f);
+		registerComponent(mDrawer);
 		
 	}
 	
 	public void setPosition(Vector2 x) {
-		mDrawer.update(x);
+		mDrawer.setPosition(x);
 	}
 	
 	public float membraneX(double theta) {
@@ -73,27 +81,26 @@ public class Amoeba extends GameObject{
 		return y;
 	}
 	
-	public Vector2[] buildMembrane() {
+	public void buildMembrane(double dt) {
+	
+		mWobbleCnt += dt;
 		
-		Vector2[] v = new Vector2[mVertCnt];
-		
-		for (int i = 0; i < mVertCnt; i++) {
-			v[i] = new Vector2(
-						membraneX(i*2.0*Math.PI/(double)mVertCnt),
+		int i = 0;
+		synchronized(this) {
+			for (Vector2 v : mVertices) {
+				v.set(
+						membraneX(i*2.0*Math.PI/(double)mVertCnt),	
 						membraneY(i*2.0*Math.PI/(double)mVertCnt)
-					); 
+						);
+				i++;
+			}
 		}
 		
-		return v;
 	}
-	
 
-	public void update(double dt) {
-		super.update(dt);
-		
-		mWobbleCnt += dt;
-		mDrawer.updateVertices(buildMembrane());
-		
+	public void update(double dt) {		
+		buildMembrane(dt);
+		super.update(dt);		
 	}
 	
 }

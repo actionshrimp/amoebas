@@ -12,6 +12,7 @@ public class GameObject {
 	
 	public void registerComponent(Component c){
 		if (!components.contains(c)) {
+			c.register();
 			components.add(c);
 		}
 	}

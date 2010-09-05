@@ -4,7 +4,6 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLSurfaceView.Renderer;
-import android.util.Log;
 
 public class AmoebasRenderer implements Renderer {
 	
@@ -29,6 +28,11 @@ public class AmoebasRenderer implements Renderer {
 		//Really Nice Perspective Calculations
 		//gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
 		gl.glEnable(GL10.GL_LINE_SMOOTH);
+		
+		gl.glEnable(GL10.GL_BLEND);
+		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		
+		
 		gl.glHint(GL10.GL_LINE_SMOOTH_HINT, GL10.GL_NICEST);
 	}
 
@@ -42,7 +46,8 @@ public class AmoebasRenderer implements Renderer {
 		setView(gl, -mCamera.w.x/2.0f, mCamera.w.x/2.0f, mCamera.w.y/2.0f, -mCamera.w.y/2.0f);
 		
 		gl.glTranslatef(-mCamera.x.x, -mCamera.x.y, 0.0f);
-		DrawableComponent.drawAll(gl);		
+		
+		DrawableComponent.drawAll(gl);
 	}
 
 	
@@ -67,7 +72,6 @@ public class AmoebasRenderer implements Renderer {
 		mCamera.screenSize = new Vector2(width, height);
 		
 		gl.glViewport(0, 0, width, height); 	//Reset The Current Viewport
-		//setView(gl, -width/2.0f, width/2.0f, height/2.0f, -height/2.0f);
-		
+		//setView(gl, -width/2.0f, width/2.0f, height/2.0f, -height/2.0f);	
 	}
 }

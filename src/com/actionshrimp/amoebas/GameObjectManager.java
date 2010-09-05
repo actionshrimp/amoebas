@@ -1,44 +1,33 @@
 package com.actionshrimp.amoebas;
 
 import java.util.LinkedList;
-import java.util.concurrent.ConcurrentLinkedQueue;
+
+import android.util.Log;
 
 public class GameObjectManager extends GameObject {
 	
 	private LinkedList<GameObject> mObjects;
-	private ConcurrentLinkedQueue<GameObject> mWaitingAdd = new ConcurrentLinkedQueue<GameObject>();
-	private ConcurrentLinkedQueue<GameObject> mWaitingDel = new ConcurrentLinkedQueue<GameObject>();
 	
 	public GameObjectManager() {
 		super();
 		mObjects = new LinkedList<GameObject>();
 	}
 	
-	public void addObject(GameObject o) {
-		if (!mObjects.contains(o) && !mWaitingAdd.contains(o)) {
-			mWaitingAdd.add(o);
-		}
+	public synchronized void addObject(GameObject o) {
+			if (!(mObjects.contains(o))) {
+				Log.d("SHRIMP", "added amoeba");
+				mObjects.add(o);
+			}
 	}
 	
-	public void removeObject(GameObject o) {
-		mWaitingDel.add(o);
-	}
-	
-	public void update(double dt) {
-		
-		mObjects.removeAll(mWaitingDel);
-		mWaitingDel.clear();
-		
-		mObjects.addAll(mWaitingAdd);
-		mWaitingAdd.clear();
-		
-		for(GameObject o : mWaitingDel) {
+	public synchronized void removeObject(GameObject o) {
 			mObjects.remove(o);
-		}
-		
-		for(GameObject o : mObjects) {
-			o.update(dt);
-		}
+	}
+	
+	public synchronized void update(double dt) {
+			for(GameObject o : mObjects) {
+				o.update(dt);
+			}
 	}
 	
 }

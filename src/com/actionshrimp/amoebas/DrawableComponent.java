@@ -1,36 +1,45 @@
 package com.actionshrimp.amoebas;
 
+import java.util.Collections;
 import java.util.LinkedList;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.List;
 
 import javax.microedition.khronos.opengles.GL10;
 
 public class DrawableComponent extends Component {
-	
-	private static LinkedList<DrawableComponent> mDrawlist = new LinkedList<DrawableComponent>();
-	private static ConcurrentLinkedQueue<DrawableComponent> mWaiting = new ConcurrentLinkedQueue<DrawableComponent>();
+		
+	private static List<DrawableComponent> mDrawList = Collections.synchronizedList(new LinkedList<DrawableComponent>());
 	
 	public static void drawAll(GL10 gl) {
 		
-		mDrawlist.addAll(mWaiting);
-		mWaiting.clear();
-		
-		for (DrawableComponent c : mDrawlist) {
-			c.preDraw(gl);
-			c.draw(gl);
-			c.postDraw(gl);
+		synchronized(mDrawList) {
+			for (DrawableComponent c : mDrawList) {
+				c.preDraw(gl);
+				c.draw(gl);
+				c.postDraw(gl);
+			}
 		}
+		
 	}
 	
 	private Vector2 x;
 	
-	public DrawableComponent(GameObject owner) {
+	public DrawableComponent(GameObject owner, Vector2 position) {
 		super(owner);
-		mWaiting.add(this);
+		setPosition(position);
+	}
+		
+	public void register() {
+		synchronized(mDrawList) {
+			mDrawList.add(this);
+		}
 	}
 	
-	public void update(Vector2 pos) {
-		x = pos;
+	public void update() {
+	}
+		
+	public void setPosition(Vector2 position) {
+		x = position;
 	}
 	
 	public void preDraw(GL10 gl) {

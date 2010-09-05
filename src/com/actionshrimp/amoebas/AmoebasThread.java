@@ -6,7 +6,7 @@ class AmoebasThread implements Runnable {
 	
 	private AmoebasActivity mActivity;
 	private InputHandler mInputHandler;
-	private GameObjectManager mManager;
+	public volatile GameObjectManager mManager;
 	public Camera mCamera;
 	
 //	private Vector2 lastDragPos;
@@ -19,10 +19,6 @@ class AmoebasThread implements Runnable {
 		mCamera = new Camera(0.0f, 0.0f, 600.0f, 300.0f);
 		activity.mRenderer.registerCamera(mCamera);
 		mInputHandler = new InputHandler(mActivity);
-	}
-
-	public synchronized GameObjectManager getManager() {
-		return mManager;
 	}
 	
 	public void run() {
@@ -43,11 +39,15 @@ class AmoebasThread implements Runnable {
 		while(!finished) {
 			
 			long curTime = System.nanoTime();
-			double dt = (curTime - prevTime)/1000000000.0;
+			double dt = (curTime - prevTime)/1000000000.0f;
 			prevTime = curTime;
-		
 			mManager.update(dt);
-			
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

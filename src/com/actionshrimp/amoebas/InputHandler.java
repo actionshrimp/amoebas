@@ -38,7 +38,8 @@ public class InputHandler {
 		@Override
 		public boolean onDoubleTap(MotionEvent e) {
 			Amoeba a = new Amoeba(mActivity.mGame.mCamera.gameCoordinates(e.getX(),e.getY()));
-			mActivity.mGame.getManager().addObject(a);
+			Log.d("SHRIMP", "adding amoeba");
+			mActivity.mGame.mManager.addObject(a);
 			return true;
 		}
 
