@@ -28,8 +28,9 @@ public class Amoeba extends GameObject{
 	
 	double mWobbleCnt;	//Wobble tracker
 	
-	private int mVertCnt = 8;											//Blob vertex count
-	private LineDrawableComponent mDrawer;								//Drawing component
+	private int mVertCnt = 32;							//Blob vertex count
+	private LineLoopDrawableComponent mOutline;			//Drawing component
+	private TriangleFanDrawableComponent mFill;			//Drawing component
 	private volatile LinkedList<Vector2> mVertices = new LinkedList<Vector2>();	//List of vertices for internal reference
 	
 	public Amoeba(Vector2 position) {
@@ -61,14 +62,19 @@ public class Amoeba extends GameObject{
 		//Build an initial membrane for drawing component initialization
 		buildMembrane(0);
 		
-		//Register the drawing component
-		mDrawer = new LineDrawableComponent(this, position, mVertices, 2.0f);
-		registerComponent(mDrawer);
+		//Register the drawing components		
+		mFill = new TriangleFanDrawableComponent(this, position, mVertices);
+		mFill.setColor(1.0f, 1.0f, 1.0f, 0.4f);
+		registerComponent(mFill);
 		
+		mOutline = new LineLoopDrawableComponent(this, position, mVertices, 3);
+		mOutline.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+		registerComponent(mOutline);
 	}
 	
 	public void setPosition(Vector2 x) {
-		mDrawer.setPosition(x);
+		mOutline.setPosition(x); 
+		mFill.setPosition(x);
 	}
 	
 	public float membraneX(double theta) {

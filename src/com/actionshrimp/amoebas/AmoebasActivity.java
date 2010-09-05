@@ -6,45 +6,54 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 
 public class AmoebasActivity extends Activity implements SensorEventListener {
 
 	/** The OpenGL View */
-	private GLSurfaceView glSurface;
-	
-	private Thread mGameThread;
-	
-	public AmoebasThread mGame;
-	public AmoebasRenderer mRenderer;
+	private GLSurfaceView mSurfaceView;
+	private AmoebasGame mGame;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-
-		mRenderer = new AmoebasRenderer();
+		Log.d("Amoebas", "onCreate");
 		
 		//Create an Instance with this Activity
-		glSurface = new GLSurfaceView(this);
-		//Set our own Renderer
-		glSurface.setRenderer(mRenderer);
+		mSurfaceView = new GLSurfaceView(this);
+		
 		//Set the GLSurface as View to this Activity
-		setContentView(glSurface);
+		setContentView(mSurfaceView);
 		
-		mGame = new AmoebasThread(this);
-		mGameThread = new Thread(mGame);
-		mGameThread.start();
+		//Create the game
+		mGame = new AmoebasGame();
+		mGame.registerGLSurface(mSurfaceView);
 		
+		//Allow the game to start handling input
+		mGame.startInputDetection(this);
+		
+		mGame.boot();
+	
 	}
 
+	@Override
+	protected void onDestroy() {
+		Log.d("Amoebas", "onDestroy");
+		mGame.stop(); 
+		mSurfaceView = null;
+		mGame = null;
+		super.onDestroy();
+	}
+	
 	/**
 	 * Remember to resume the glSurface
 	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
-		glSurface.onResume();
+		mSurfaceView.onResume();
+		mGame.onResume();
 	}
 
 	/**
@@ -53,7 +62,8 @@ public class AmoebasActivity extends Activity implements SensorEventListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		glSurface.onPause();
+		mSurfaceView.onPause();
+		mGame.onPause();
 	}
 
 	public long mLastTouchTime;

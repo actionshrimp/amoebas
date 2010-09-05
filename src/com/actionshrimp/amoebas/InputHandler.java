@@ -1,5 +1,6 @@
 package com.actionshrimp.amoebas;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -7,15 +8,20 @@ import android.view.ScaleGestureDetector;
 
 public class InputHandler {
 	
-	private AmoebasActivity mActivity;
+	private Context mContext;
+	private AmoebasGame mGame;
 	
 	private GestureDetector mDetector;
 	private ScaleGestureDetector mScaleDetector;
 	
-	public InputHandler(AmoebasActivity activity) {
-		mActivity = activity;
-		mDetector = new GestureDetector(activity, new SingleListener());
-		mScaleDetector = new ScaleGestureDetector(activity, new ScaleListener());
+	public InputHandler(AmoebasGame game) {
+		mGame = game;
+	}
+	
+	public void registerContext(Context c) {
+		mContext = c;
+		mDetector = new GestureDetector(mContext, new SingleListener());
+		mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
 	}
 	
 	public boolean onTouchEvent(MotionEvent e) {
@@ -37,9 +43,9 @@ public class InputHandler {
 		
 		@Override
 		public boolean onDoubleTap(MotionEvent e) {
-			Amoeba a = new Amoeba(mActivity.mGame.mCamera.gameCoordinates(e.getX(),e.getY()));
+			Amoeba a = new Amoeba(mGame.mCamera.gameCoordinates(e.getX(),e.getY()));
 			Log.d("SHRIMP", "adding amoeba");
-			mActivity.mGame.mManager.addObject(a);
+			mGame.mManager.addObject(a);
 			return true;
 		}
 
@@ -62,7 +68,7 @@ public class InputHandler {
 				float distanceX, float distanceY) {
 			Vector2 x = new Vector2(distanceX, distanceY);
 			if (x.length2() < 5000.0) { 
-				mActivity.mGame.mCamera.pan(x);
+				mGame.mCamera.pan(x);
 			}
 			return true;
 		}
@@ -74,7 +80,7 @@ public class InputHandler {
 		@Override
 		public boolean onScale(ScaleGestureDetector detector) {
 			Log.d("onScale",detector.toString());
-			mActivity.mGame.mCamera.zoom(detector.getScaleFactor());
+			mGame.mCamera.zoom(detector.getScaleFactor());
 			return true;
 		}
 	

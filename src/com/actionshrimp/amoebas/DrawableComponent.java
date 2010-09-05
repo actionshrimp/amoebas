@@ -1,14 +1,12 @@
 package com.actionshrimp.amoebas;
 
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.microedition.khronos.opengles.GL10;
 
 public class DrawableComponent extends Component {
 		
-	private static List<DrawableComponent> mDrawList = Collections.synchronizedList(new LinkedList<DrawableComponent>());
+	private static LinkedList<DrawableComponent> mDrawList = new LinkedList<DrawableComponent>();
 	
 	public static void drawAll(GL10 gl) {
 		
@@ -23,6 +21,7 @@ public class DrawableComponent extends Component {
 	}
 	
 	private Vector2 x;
+	private float[] rgba = {1.0f,1.0f,1.0f,1.0f};
 	
 	public DrawableComponent(GameObject owner, Vector2 position) {
 		super(owner);
@@ -30,9 +29,7 @@ public class DrawableComponent extends Component {
 	}
 		
 	public void register() {
-		synchronized(mDrawList) {
-			mDrawList.add(this);
-		}
+		Component.mGame.mRenderer.addComponent(this);
 	}
 	
 	public void update() {
@@ -42,6 +39,10 @@ public class DrawableComponent extends Component {
 		x = position;
 	}
 	
+	public void setColor(float r, float g, float b, float a) {
+		rgba[0] = r; rgba[1] = g; rgba[2] = b; rgba[3] = a;
+	}
+	
 	public void preDraw(GL10 gl) {
 		
 		gl.glPushMatrix();
@@ -49,6 +50,7 @@ public class DrawableComponent extends Component {
 		
 		//Set the face rotation
 		gl.glFrontFace(GL10.GL_CW);
+		gl.glColor4f(rgba[0], rgba[1], rgba[2], rgba[3]);
 		
 	}
 	
